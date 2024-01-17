@@ -1,5 +1,21 @@
 /* See LICENSE file for copyright and license details. */
 
+/* Solarized colors http://ethanschoonover.com/solarized */
+static const char s_base03[]        = "#002b36";
+static const char s_base02[]        = "#073642";
+static const char s_base01[]        = "#586e75";
+static const char s_base00[]        = "#657b83";
+static const char s_base0[]         = "#839496";
+static const char s_base1[]         = "#93a1a1";
+static const char s_base2[]         = "#eee8d5";
+static const char s_base3[]         = "#fdf6e3";
+
+/* scheme_switch functions */
+static void schemeCycle(const Arg*);
+static void schemeToggle(const Arg*);
+
+static int SchemeNorm = 0, SchemeSel = 1;
+
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
@@ -14,8 +30,15 @@ static const char col_gray4[]       = "#eeeeee";
 static const char col_cyan[]        = "#005577";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+	/* [SchemeNorm] = { col_gray3, col_gray1, col_gray2 }, */
+	/* [SchemeSel]  = { col_gray4, col_cyan,  col_cyan  }, */
+  	{ s_base0, s_base03, s_base2 },      /* SchemeNorm dark */
+	{ s_base0, s_base02, s_base2 },      /* SchemeSel dark */
+	{ s_base00, s_base3, s_base02 },     /* SchemeNorm light */
+	{ s_base00, s_base2, s_base02},      /* SchemeSel light */
+	{ col_gray3, col_gray1, col_gray2 }, /* SchemeNorm orig */
+	{ col_gray4, col_cyan,  col_cyan  }, /* SchemeSel orig */
+
 };
 
 /* tagging */
@@ -85,6 +108,8 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_t,      schemeToggle,   {0} },
+	{ MODKEY|ShiftMask,             XK_z,      schemeCycle,    {0} },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
@@ -114,3 +139,34 @@ static const Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 
+void
+schemeCycle(const Arg *arg) {
+  if ((SchemeSel + 2) < LENGTH(colors))
+    {
+      SchemeNorm += 2;
+      SchemeSel += 2;
+    } else {
+    SchemeNorm = 0;
+    SchemeSel = 1;
+  }
+  drawbars();
+}
+
+void
+schemeToggle(const Arg *arg) {
+  int numThemePairs = LENGTH(colors) / 4;
+  int sheme = SchemeNorm / 2;
+  if (sheme / 2 > numThemePairs-1) {
+    return;
+  }
+  
+  if (sheme % 2 == 0) {
+    SchemeNorm += 2;
+    SchemeSel += 2;
+  } else {
+    SchemeNorm -= 2;
+    SchemeSel -= 2;
+  }
+  
+  drawbars();
+}
